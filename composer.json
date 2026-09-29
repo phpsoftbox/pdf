@@ -19,10 +19,10 @@
         "psr/http-message": "^2.0"
     },
     "require-dev": {
-        "phpsoftbox/cs-fixer": "^1.2.1",
-        "phpsoftbox/http-client": "dev-master",
-        "phpsoftbox/http-message": "dev-master",
-        "phpsoftbox/queue": "dev-master",
+        "phpsoftbox/cs-fixer": "^1.2.2",
+        "phpsoftbox/http-client": "^1.0",
+        "phpsoftbox/http-message": "^1.0",
+        "phpsoftbox/queue": "^1.0",
         "phpunit/phpunit": "^13.3"
     },
     "suggest": {
@@ -44,6 +44,5 @@
         "cs:fix": "vendor/bin/psb-cs-fixer fix",
         "cs:check": "vendor/bin/psb-cs-fixer check --diff"
     },
-    "minimum-stability": "dev",
     "prefer-stable": true
 }
