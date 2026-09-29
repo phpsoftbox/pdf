@@ -23,6 +23,26 @@
 - `PhpSoftBox\Pdf\Gotenberg\GotenbergHtmlPdfRenderer`
 - endpoint по умолчанию: `/forms/chromium/convert/html`
 
+## Зависимости
+
+Пакет зависит только от интерфейсов PSR-18/PSR-17. Реализации — например, `phpsoftbox/http-client` и
+`phpsoftbox/http-message` (перечислены в `suggest`).
+
+## Безопасность HTML
+
+Chromium в Gotenberg загружает всё, на что ссылается HTML: `<img src>`, `<link href>`, `<iframe>`, `fetch()` из
+скриптов. Если в HTML попадают пользовательские данные без экранирования, через документ можно запросить внутренние
+адреса сети (SSRF) или локальные файлы контейнера Gotenberg (`file://`). Поэтому:
+
+- экранируйте все данные в шаблонах (`html()`/`htmlspecialchars`), не вставляйте пользовательские URL в
+  `src`/`href` без проверки схемы и хоста;
+- ограничьте Gotenberg на уровне сервиса: `--chromium-deny-list` (по умолчанию запрещает `file://` кроме `/tmp`),
+  `--chromium-allow-list` с нужными адресами, при необходимости `--chromium-disable-javascript=true`; держите
+  Gotenberg в изолированной сети без доступа к внутренним сервисам;
+- ресурсы (шрифты, изображения, CSS) лучше встраивать в HTML (`data:` URI, inline-стили).
+
+Текст ошибки Gotenberg (тело ответа) попадает в сообщение `PdfRenderException`.
+
 ## Быстрый старт
 
 ```php
