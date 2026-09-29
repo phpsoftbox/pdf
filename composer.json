@@ -25,6 +25,10 @@
         "phpsoftbox/queue": "dev-master",
         "phpunit/phpunit": "^13.3"
     },
+    "suggest": {
+        "phpsoftbox/http-client": "PSR-18 HTTP client for GotenbergHtmlPdfRenderer.",
+        "phpsoftbox/http-message": "PSR-17 factories for GotenbergHtmlPdfRenderer and PdfHttpResponder."
+    },
     "autoload": {
         "psr-4": {
             "PhpSoftBox\\Pdf\\": "src/"
