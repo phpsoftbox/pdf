@@ -33,7 +33,7 @@ use function trim;
 final class GotenbergPdfIntegrationTest extends TestCase
 {
     private const DEFAULT_GOTENBERG_URL = 'http://gotenberg:3000';
-    private const ARTIFACTS_DIR = __DIR__ . '/../../local/tests/pdf';
+    private const ARTIFACTS_DIR         = __DIR__ . '/../../local/tests/pdf';
 
     /**
      * Проверяет интеграционную генерацию PDF через живой сервис Gotenberg.
