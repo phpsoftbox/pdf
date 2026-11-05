@@ -10,6 +10,7 @@ use PhpSoftBox\Http\Message\ResponseFactory;
 use PhpSoftBox\Http\Message\StreamFactory;
 use PhpSoftBox\Pdf\Batch\PdfChunkPlanner;
 use PhpSoftBox\Pdf\Gotenberg\GotenbergHtmlPdfRenderer;
+use PhpSoftBox\Pdf\Gotenberg\GotenbergPdfMerger;
 use PhpSoftBox\Pdf\PdfRenderOptions;
 use PhpSoftBox\Queue\Drivers\InMemoryDriver;
 use PhpSoftBox\Queue\QueueJob;
@@ -24,6 +25,7 @@ use function getenv;
 use function is_dir;
 use function is_string;
 use function mkdir;
+use function preg_match_all;
 use function preg_replace;
 use function sprintf;
 use function str_contains;
@@ -101,6 +103,42 @@ final class GotenbergPdfIntegrationTest extends TestCase
         foreach ($generated as $index => $pdfBinary) {
             $this->savePdfArtifact('chunk-' . (string) ($index + 1), $pdfBinary);
         }
+    }
+
+    /**
+     * Проверяет, что части, отрисованные отдельно, склеиваются в один PDF со всеми страницами в порядке частей.
+     *
+     * @see GotenbergPdfMerger::merge()
+     */
+    #[Test]
+    public function testMergeRenderedChunksViaGotenberg(): void
+    {
+        $renderer = $this->createRendererIfAvailable();
+        if (!$renderer instanceof GotenbergHtmlPdfRenderer) {
+            return;
+        }
+
+        $parts = [];
+        foreach ([2, 3] as $index => $pages) {
+            $html = '<html><body>';
+            for ($page = 1; $page <= $pages; $page++) {
+                $html .= sprintf('<div style="page-break-after: always">Part %d page %d</div>', $index + 1, $page);
+            }
+            $parts[] = $renderer->renderHtml($html . '</body></html>', PdfRenderOptions::labelMm(58, 40, marginMm: 1));
+        }
+
+        $merger = new GotenbergPdfMerger(
+            client: $this->createHttpClient(),
+            requestFactory: new RequestFactory(),
+            streamFactory: new StreamFactory(),
+            baseUrl: $this->resolveGotenbergUrl(),
+        );
+
+        $merged = $merger->merge($parts);
+
+        $this->assertTrue(str_starts_with($merged->content, '%PDF'));
+        $this->assertSame(5, preg_match_all('#/Type\s*/Page[^s]#', $merged->content));
+        $this->savePdfArtifact('merged', $merged->content);
     }
 
     private function createRendererIfAvailable(): ?GotenbergHtmlPdfRenderer

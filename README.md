@@ -117,6 +117,17 @@ $chunks = PdfChunkPlanner::split(totalPages: 1200, pagesPerChunk: 250);
 // 1-250, 251-500, 501-750, 751-1000, 1001-1200
 ```
 
+Если нужен один файл, части склеиваются `PdfMergerInterface` (`GotenbergPdfMerger`, `/forms/pdfengines/merge`).
+Время рендера Chromium растёт быстрее числа страниц, поэтому большой документ надёжнее рисовать частями и склеивать,
+чем поднимать таймаут Gotenberg:
+
+```php
+use PhpSoftBox\Pdf\Gotenberg\GotenbergPdfMerger;
+
+$merger = new GotenbergPdfMerger($httpClient, $requestFactory, $streamFactory, 'http://gotenberg:3000');
+$pdf    = $merger->merge($parts); // list<PdfDocument> в порядке частей; одна часть возвращается как есть
+```
+
 ## Тестовые артефакты PDF
 
 В пакете предусмотрен каталог для артефактов интеграционных тестов:
